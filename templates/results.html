@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - {{ username }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fab fa-twitter"></i> Analysis Results</h1>
+            <div class="user-info">
+                <h2>@{{ username }}</h2>
+                <p>{{ user_info.name }}</p>
+                <small>Analyzed on {{ timestamp[:19] }}</small>
+            </div>
+        </header>
+
+        <div class="summary-cards">
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-chart-bar"></i></div>
+                <div class="card-content">
+                    <h3>{{ summary.total_tweets }}</h3>
+                    <p>Total Tweets</p>
+                </div>
+            </div>
+            
+            <div class="card {{ 'danger' if summary.flagged_count > 0 else 'success' }}">
+                <div class="card-icon">
+                    <i class="fas fa-flag"></i>
+                </div>
+                <div class="card-content">
+                    <h3>{{ summary.flagged_count }}</h3>
+                    <p>Flagged Tweets ({{ summary.flagged_percentage }}%)</p>
+                </div>
+            </div>
+            
+            <div class="card {{ 'warning' if summary.hateful_count > 0 else 'neutral' }}">
+                <div class="card-icon"><i class="fas fa-heart-broken"></i></div>
+                <div class="card-content">
+                    <h3>{{ summary.hateful_count }}</h3>
+                    <p>Hateful Content ({{ summary.hateful_percentage }}%)</p>
+                </div>
+            </div>
+            
+            <div class="card {{ 'danger' if summary.violent_count > 0 else 'neutral' }}">
+                <div class="card-icon"><i class="fas fa-fist-raised"></i></div>
+                <div class="card-content">
+                    <h3>{{ summary.violent_count }}</h3>
+                    <p>Violent Content ({{ summary.violent_percentage }}%)</p>
+                </div>
+            </div>
+            
+            <div class="card {{ 'warning' if summary.anti_america_count > 0 else 'neutral' }}">
+                <div class="card-icon"><i class="fas fa-flag-usa"></i></div>
+                <div class="card-content">
+                    <h3>{{ summary.anti_america_count }}</h3>
+                    <p>Anti-America ({{ summary.anti_america_percentage }}%)</p>
+                </div>
+            </div>
+        </div>
+
+        {% if summary.flagged_tweets %}
+        <div class="flagged-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Flagged Tweets</h2>
+            
+            {% for tweet in summary.flagged_tweets %}
+            <div class="tweet-card flagged">
+                <div class="tweet-content">
+                    <p>"{{ tweet.tweet_text }}"</p>
+                </div>
+                
+                <div class="tweet-analysis">
+                    <div class="flags">
+                        {% if tweet.analysis.hateful %}
+                            <span class="flag hateful"><i class="fas fa-heart-broken"></i> Hateful</span>
+                        {% endif %}
+                        {% if tweet.analysis.violent %}
+                            <span class="flag violent"><i class="fas fa-fist-raised"></i> Violent</span>
+                        {% endif %}
+                        {% if tweet.analysis.anti_america %}
+                            <span class="flag anti-america"><i class="fas fa-flag-usa"></i> Anti-America</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="analysis-details">
+                        <div class="severity severity-{{ tweet.analysis.severity }}">
+                            Severity: {{ tweet.analysis.severity.title() }}
+                        </div>
+                        <div class="confidence">
+                            Confidence: {{ tweet.analysis.confidence.title() }}
+                        </div>
+                    </div>
+                    
+                    <div class="explanation">
+                        <strong>Analysis:</strong> {{ tweet.analysis.explanation }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="all-tweets-section">
+            <h2><i class="fas fa-list"></i> All Analyzed Tweets</h2>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Tweets</button>
+                <button class="filter-btn" data-filter="flagged">Flagged Only</button>
+                <button class="filter-btn" data-filter="clean">Clean Only</button>
+            </div>
+            
+            {% for tweet in results %}
+            <div class="tweet-card {{ 'flagged' if (tweet.analysis.hateful or tweet.analysis.violent or tweet.analysis.anti_america) else 'clean' }}" 
+                 data-category="{{ 'flagged' if (tweet.analysis.hateful or tweet.analysis.violent or tweet.analysis.anti_america) else 'clean' }}">
+                
+                <div class="tweet-content">
+                    <p>"{{ tweet.tweet_text }}"</p>
+                </div>
+                
+                <div class="tweet-analysis">
+                    {% if tweet.analysis.hateful or tweet.analysis.violent or tweet.analysis.anti_america %}
+                        <div class="flags">
+                            {% if tweet.analysis.hateful %}
+                                <span class="flag hateful"><i class="fas fa-heart-broken"></i> Hateful</span>
+                            {% endif %}
+                            {% if tweet.analysis.violent %}
+                                <span class="flag violent"><i class="fas fa-fist-raised"></i> Violent</span>
+                            {% endif %}
+                            {% if tweet.analysis.anti_america %}
+                                <span class="flag anti-america"><i class="fas fa-flag-usa"></i> Anti-America</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="analysis-details">
+                            <div class="severity severity-{{ tweet.analysis.severity }}">
+                                Severity: {{ tweet.analysis.severity.title() }}
+                            </div>
+                            <div class="confidence">
+                                Confidence: {{ tweet.analysis.confidence.title() }}
+                            </div>
+                        </div>
+                        
+                        <div class="explanation">
+                            <strong>Analysis:</strong> {{ tweet.analysis.explanation }}
+                        </div>
+                    {% else %}
+                        <div class="clean-indicator">
+                            <i class="fas fa-check-circle"></i> No issues detected
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="actions">
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-search"></i> Analyze Another Account
+            </a>
+            <button onclick="window.print()" class="btn btn-secondary">
+                <i class="fas fa-print"></i> Print Report
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active button
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                const tweets = document.querySelectorAll('.tweet-card');
+                
+                tweets.forEach(tweet => {
+                    if (filter === 'all') {
+                        tweet.style.display = 'block';
+                    } else {
+                        tweet.style.display = tweet.dataset.category === filter ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

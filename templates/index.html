@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Content Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fab fa-twitter"></i> Twitter Content Analyzer</h1>
+            <p>Analyze Twitter accounts for hateful, violent, or anti-America content</p>
+        </header>
+
+        <div class="analysis-form">
+            <form id="analysisForm">
+                <div class="input-group">
+                    <label for="username">Twitter Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username (without @)" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="num_tweets">Number of Tweets to Analyze</label>
+                    <select id="num_tweets" name="num_tweets">
+                        <option value="10">10 tweets</option>
+                        <option value="20" selected>20 tweets</option>
+                        <option value="50">50 tweets</option>
+                        <option value="100">100 tweets</option>
+                    </select>
+                </div>
+                
+                <button type="submit" id="analyzeBtn">
+                    <i class="fas fa-search"></i>
+                    Analyze Account
+                </button>
+            </form>
+        </div>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Analyzing tweets... This may take a few minutes.</p>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="error" class="error hidden">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorMessage"></span>
+        </div>
+
+        <div id="results" class="results hidden">
+            <!-- Results will be loaded here -->
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
