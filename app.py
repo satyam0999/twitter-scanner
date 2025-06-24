@@ -7,6 +7,9 @@ import time
 import os
 import uuid
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -14,10 +17,10 @@ app = Flask(__name__)
 analysis_cache = {}
 
 # Configuration
-USERNAME = 'Codek37727'
-EMAIL = 'codenahiphatega@gmail.com' 
-PASSWORD = 'Foreign@2023'
-OPENAI_API_KEY = 'your-openai-api-key-here'  # Replace with your key
+USERNAME = os.environ.get('USERNAME')
+EMAIL = os.environ.get('EMAIL') 
+PASSWORD = os.environ.get('PASSWORD')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 class TweetAnalyzer:
     def __init__(self, openai_api_key):
@@ -301,9 +304,9 @@ def clear_cache():
 
 if __name__ == '__main__':
     print("🚀 Starting Flask app...")
-    print("💡 Tip: Visit /api/cache-status to see cache status")
-    print("💡 Tip: Visit /api/clear-cache to clear all caches")
     
-    # Use environment variable for port (for hosting platforms)
+    # Use environment variable for port (Render sets this)
     port = int(os.environ.get('PORT', 5000))
-    app.run(debug=False, host='0.0.0.0', port=port)
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)
